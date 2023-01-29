@@ -15,16 +15,13 @@ BEGIN {
 
 {
     event = $1;
-    time_sec = $2;
-    node = $3;
-    layer = $4;
-    packet_id = $6;
-    packet_type = $7;
-    packet_bytes = $8;
+    time_sec = $3;
+    node = $5;
+    layer = $19;
+    packet_id = $41;
+    packet_type = $35;
+    packet_bytes = $37;
 
-
-    sub(/^_*/, "", node);
-	sub(/_*$/, "", node);
 
     # set start time for the first line
     if(start_time > time_sec) {
@@ -41,7 +38,6 @@ BEGIN {
 
         else if(event == "r") {
             delay = time_sec - sent_time[packet_id];
-            
             total_delay += delay;
 
 
@@ -53,7 +49,7 @@ BEGIN {
         }
     }
 
-    if (packet_type == "exp" && event == "D") {
+    if (packet_type == "exp" && event == "d") {
         dropped_packets += 1;
     }
 }
@@ -62,15 +58,5 @@ BEGIN {
 END {
     end_time = time_sec;
     simulation_time = end_time - start_time;
-
-    print "-------------------------------------------------------------";
-    print "Sent Packets: ", sent_packets;
-    print "Dropped Packets: ", dropped_packets;
-    print "Received Packets: ", received_packets;
-    print "-------------------------------------------------------------";
-    print "Throughput: ", (received_bytes * 8) / simulation_time, "bits/sec";
-    print "Average Delay: ", (total_delay / received_packets), "seconds";
-    print "Delivery ratio: ", (received_packets / sent_packets);
-    print "Drop ratio: ", (dropped_packets / sent_packets);
-    print "-------------------------------------------------------------";
+    print (received_bytes * 8) / simulation_time, (total_delay / received_packets), (received_packets / sent_packets), (dropped_packets / sent_packets);
 }

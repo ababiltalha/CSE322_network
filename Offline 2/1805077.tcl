@@ -11,17 +11,24 @@ set val(ant)          Antenna/OmniAntenna           ;# Antenna type
 set val(ll)           LL                            ;# Link layer type
 set val(ifq)          Queue/DropTail/PriQueue       ;# Interface queue type
 set val(ifqlen)       50                            ;# max packet in ifq
-set val(netif)        Phy/WirelessPhy               ;# network interface type # Phy/WirelessPhy # Phy/WirelessPhy/802_15_4
-set val(mac)          Mac/802_11                  ;# MAC type # Mac/802_11 # Mac/802_15_4
+set val(netif)        Phy/WirelessPhy/802_15_4      ;# network interface type # Phy/WirelessPhy # Phy/WirelessPhy/802_15_4
+set val(mac)          Mac/802_15_4                  ;# MAC type # Mac/802_11 # Mac/802_15_4
 set val(rp)           DSDV                          ;# ad-hoc routing protocol 
 set val(nn)           [lindex $argv 0]              ;# number of mobilenodes def 40
 set val(nf)           [lindex $argv 1]              ;# number of flows def 20
 set val(dim)          [lindex $argv 2]              ;# dimension of the area def 500
+set val(energymodel_15)     EnergyModel             ;# Energy Model
+set val(initialenergy_15)   3.0                     ;# Initial energy in Joules
+set val(idlepower_15)       0.45                    ;#LEAP (802.11g)
+set val(rxpower_15)         0.9                     ;#LEAP (802.11g)
+set val(txpower_15)         0.5                     ;#LEAP (802.11g)
+set val(sleeppower_15)      0.05                    ;#LEAP (802.11g)
 # =======================================================================
 
 # trace file
 set trace_file [open trace.tr w]
 $ns trace-all $trace_file
+$ns use-newtrace
 
 # nam file
 set nam_file [open animation.nam w]
@@ -73,6 +80,12 @@ $ns node-config -adhocRouting $val(rp) \
                 -agentTrace ON \
                 -routerTrace ON \
                 -macTrace OFF \
+                -energyModel $val(energymodel_15) \
+                -idlePower $val(idlepower_15) \
+                -rxPower $val(rxpower_15) \
+                -txPower $val(txpower_15) \
+                -sleepPower $val(sleeppower_15) \
+                -initialEnergy $val(initialenergy_15)\
                 -movementTrace OFF
 
 # create nodes
@@ -82,8 +95,12 @@ for {set i 0} {$i < $val(nn) } {incr i} {
     $node($i) random-motion 0       ;# disable random motion
     $node($i) set X_ [expr (int(rand() * 1000) % $val(dim))]
     $node($i) set Y_ [expr (int(rand() * 1000) % $val(dim))]
-    $node($i) set Z_ 0
+    $node($i) set Z_ 0 
     $ns initial_node_pos $node($i) 20
+    set speed [expr (int(rand() * 1000) % 4 + 1)]
+    set dest_X [expr (int(rand() * 1000) % ($val(dim)-1) + 1)]
+    set dest_Y [expr (int(rand() * 1000) % ($val(dim)-1) + 1)]
+    $ns at 0 "$node($i) setdest $dest_X $dest_Y $speed"
 } 
 
 # Traffic
@@ -106,7 +123,7 @@ for {set i 0} {$i < $val(nf)} {incr i} {
     # attach to agent
     $exp_traffic attach-agent $udp_agent
     # set MSS to 536 B
-    # $udp_agent set packetSize_ 536
+    $exp_traffic set packetSize_ 40
     
     set null_agent [new Agent/Null]
     $ns attach-agent $node($dest) $null_agent
