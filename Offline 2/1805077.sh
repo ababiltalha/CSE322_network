@@ -30,4 +30,4 @@ done
 # mkdir graphs
 python 1805077.py
 
-rm area.out nodes.out flows.out trace.tr animation.nam temp.txt
+# rm area.out nodes.out flows.out trace.tr animation.nam temp.txt
