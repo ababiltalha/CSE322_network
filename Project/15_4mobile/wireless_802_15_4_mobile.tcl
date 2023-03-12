@@ -39,8 +39,8 @@ $ns trace-all $trace_file
 # $ns use-newtrace
 
 # nam file
-# set nam_file [open animation.nam w]
-# $ns namtrace-all-wireless $nam_file $val(dim) $val(dim)
+set nam_file [open animation.nam w]
+$ns namtrace-all-wireless $nam_file $val(dim) $val(dim)
 
 # topology: to keep track of node movements
 set topo [new Topography]
@@ -108,8 +108,8 @@ $ns node-config -adhocRouting $val(rp) \
 for {set i 0} {$i < $val(nn)} {incr i} {
     set node($i) [$ns node]
     $node($i) random-motion 0       ;# disable random motion
-    $node($i) set X_ [expr int($i / 10) * $val(dim) / 50]
-    $node($i) set Y_ [expr int($i % 10) * $val(dim) / 50]
+    $node($i) set X_ [expr int($i / 10) * $val(dim) / 10]
+    $node($i) set Y_ [expr int($i % 10) * $val(dim) / 10]
     $node($i) set Z_ 0
 
     set speed $val(nodespeed)
